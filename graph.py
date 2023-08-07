@@ -1,5 +1,9 @@
 import pandas as pd
-import csv
+import random
+import matplotlib.pyplot as plt
+from matplotlib import rc  
+rc('font', family='AppleGothic') 			
+plt.rcParams['axes.unicode_minus'] = False  
 
 #FILE_FATH = input()
 TEST_VLUE = "/Users/cucuridas/Desktop/performence_codingtest/programmers_personality_type_test.csv"
@@ -18,36 +22,28 @@ def preprocessing(df):
 
 # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.divide.html
 # https://blockchainstudy.tistory.com/45
-def create_new_dataframe(df,value):
-    people = df.columns.tolist()
-    multi_columns = []
-    columns = []
-    index = df.index.tolist()
-
-    for i in people:
-        columns.extend([i,i])
-
-    for i in range(0,len(people)):
-        multi_columns.extend(["performence","memory"])
-    
-    new_dataframe = pd.DataFrame(data=value,index = index, columns= [columns,multi_columns])
-    
-    return new_dataframe
     
 def divide_performence_and_memory(list_values):
     performence,memory = list_values.split(", ")
     
     return performence,memory
 
+def color_set(peoples):
+    color_dict = {}
+    for i in peoples:
+        color_dict.setdefault(i,random_color())
+    return color_dict
 
-
+def random_color():
+    color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) 
+    return color
 
 if __name__ == "__main__":
     dataframe = read_csv()
     pre_df = preprocessing(dataframe)
-    index_list = pre_df.index.to_list()
-    value_list = []
-    df = None
+    color_value = color_set(pre_df.columns.to_list())
+    per_df = None
+    mem_df = None
 
     for i in pre_df.columns.to_list():
         #Divide dataframe value by using string format
@@ -57,16 +53,28 @@ if __name__ == "__main__":
         perf = list(map(lambda x: float(x[0].strip()),result))
         mem = list(map(lambda x: float(x[1].strip()),result))
 
-        value_dict = {
-            (i,'performence'):perf,
-            (i,'memory'):mem
+        perf_dict = {
+            i: perf
         }
 
-        if not isinstance(df,pd.DataFrame) :
-            df = pd.DataFrame(data=value_dict,columns=([[i,i],['performence','memory']]))
+        mem_dict = {
+            i: mem
+        }
+
+
+        if not isinstance(per_df,pd.DataFrame) :
+            per_df = pd.DataFrame(perf_dict,index=[i for i in range(1,21)])
+            mem_df = pd.DataFrame(mem_df)
         else:
-            df = pd.concat([df,pd.DataFrame(data=value_dict,columns=([[i,i],['performence','memory']]))],axis=1)
+            per_df = pd.concat([per_df,pd.DataFrame(perf_dict)],axis=1)
+            mem_df = pd.concat([mem_df,pd.DataFrame(mem_dict)],axis=1)
         
+        
+    per_graph = per_df.plot.line(title='performence',color=color_value).get_figure()
+    mem_graph = mem_df.plot.line(title='usage memory',color=color_value).get_figure()
+
+    per_graph.savefig('per_graph.png')
+    mem_graph.savefig('mem_graph.png')
     
         # new_dataframe[i]["memory"] = 
 
